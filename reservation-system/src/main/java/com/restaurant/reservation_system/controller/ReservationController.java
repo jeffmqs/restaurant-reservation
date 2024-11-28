@@ -3,6 +3,7 @@ package com.restaurant.reservation_system.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,7 +24,7 @@ public class ReservationController {
     @PostMapping
     public ResponseEntity<Reservation> createReservation(@RequestBody Reservation reservation) {
         Reservation createdReservation = reservationService.createReservation(reservation);
-        return ResponseEntity.ok(createdReservation);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdReservation);
     }
 
     @GetMapping
