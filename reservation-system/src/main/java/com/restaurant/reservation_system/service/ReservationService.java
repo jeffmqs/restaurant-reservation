@@ -1,5 +1,6 @@
 package com.restaurant.reservation_system.service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,8 +14,24 @@ public class ReservationService {
 
     @Autowired
     private ReservationRepository reservationRepository;
+    public ReservationService(ReservationRepository reservationRepository) {
+        this.reservationRepository = reservationRepository;
+    }
 
     public Reservation createReservation(Reservation reservation) {
+        int maxPeople = 10;
+        String openingTime = "10:00";
+        String closingTime = "22:00";
+        if (reservation.getNumberOfPeople() > maxPeople) {
+            throw new IllegalArgumentException("Number of people exceeds the limit.");
+        }
+        if (isPastDate(reservation.getDate())) {
+            throw new IllegalArgumentException("Date is in the past.");
+        }
+
+        if (!isWithinOperatingHours(reservation.getTime(), openingTime, closingTime)) {
+            throw new IllegalArgumentException("Invalid time. Restaurant is closed.");
+        }
         if (reservation.getDate().isEmpty() || reservation.getTime().isEmpty()) {
             throw new IllegalArgumentException("Date or time cannot be empty.");
         }
@@ -29,5 +46,12 @@ public class ReservationService {
 
     public List<Reservation> getAllReservations() {
         return reservationRepository.findAll();
+    }
+    private boolean isWithinOperatingHours(String reservationTime, String openingTime, String closingTime) {
+        return reservationTime.compareTo(openingTime) >= 0 && reservationTime.compareTo(closingTime) <= 0;
+    }
+    private boolean isPastDate(String date) {
+        LocalDate reservationDate = LocalDate.parse(date);
+        return reservationDate.isBefore(LocalDate.now());
     }
 }
